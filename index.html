@@ -115,7 +115,7 @@
         <div class="max-w-3xl mx-auto space-y-3">
           
           <!-- معاينة الملف المرفق قبل الإرسال -->
-          <div id="file-preview-container" class="hidden flex items-center gap-3 p-2 bg-slate-950 border border-slate-850 rounded-2xl w-fit relative animate-bounce-short">
+          <div id="file-preview-container" class="hidden flex items-center gap-3 p-2 bg-slate-950 border border-slate-850 rounded-2xl w-fit relative">
             <div id="file-preview-visual" class="w-12 h-12 rounded-lg bg-slate-900 flex items-center justify-center overflow-hidden border border-slate-800">
               <!-- يُدرج محتوى المعاينة برمجياً (صورة أو أيقونة ملف) -->
             </div>
@@ -139,7 +139,7 @@
 
             <input type="text" id="input-message" placeholder="اكتب رسالتك، ارفع مستند PDF، كوداً، أو صورة..." class="w-full bg-transparent border-0 focus:ring-0 text-slate-100 placeholder-slate-500 text-sm px-4 py-3 outline-none" autocomplete="off">
             
-            <button type="submit" id="send-btn" class="p-3 rounded-xl flex items-center justify-center transition-all bg-slate-900 text-slate-600 cursor-not-allowed">
+            <button type="submit" id="send-btn" class="p-3 rounded-xl flex items-center justify-center transition-all bg-slate-900 text-slate-600 cursor-not-allowed" disabled>
               <svg class="w-4 h-4 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </button>
           </form>
@@ -174,7 +174,7 @@
           </label>
           <input type="password" id="api-key-input" placeholder="أدخل مفتاح الـ API هنا..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors">
           <p class="text-[11px] text-slate-500 leading-relaxed">
-            تم تطبيق تهيئة خاصة لدعم مفاتيح المصادقة المباشرة التي تبدأ بـ <span class="text-cyan-400 font-bold">AQ.</span> عبر آلية الـ Bearer Token تلقائياً.
+            تمت تهيئة الكود ليقوم أوتوماتيكياً بتجربة تمرير المفتاح كـ <span class="text-cyan-400 font-bold">Query Parameter</span> لتجنب حظر الـ CORS على GitHub Pages عند استخدام مفاتيح <span class="text-cyan-400 font-bold">AQ.</span> الحديثة.
           </p>
         </div>
 
@@ -197,7 +197,6 @@
 
   <!-- منطق التطبيق والتفاعل (JavaScript) -->
   <script>
-    // الحالات الأساسية للتطبيق
     const USER_PROVIDED_KEY = "AQ.Ab8RN6L3iZw89AokNFUiL3Tx9-HSK_Dmhp_C4EP8ZWZqbae5Fg";
     const DEFAULT_SYSTEM_PROMPT = 'أنت مساعد ذكي، ودود، ومتعاون للغاية. تجيب باللغة العربية الفصحى بدقة ووضوح وتستطيع قراءة وتحليل كافة الملفات والمستندات والأسطر البرمجية والصور التي يرسلها لك المستخدم مع صياغة ردودك بتنسيق Markdown متكامل ومنظم.';
 
@@ -209,21 +208,17 @@
     let customApiKey = USER_PROVIDED_KEY;
     let systemPrompt = DEFAULT_SYSTEM_PROMPT;
 
-    // تهيئة التطبيق عند فتح الصفحة
     window.onload = function() {
-      // ملء قيم المدخلات الافتراضية
       document.getElementById('api-key-input').value = customApiKey;
       document.getElementById('system-prompt-input').value = systemPrompt;
       
       renderChatsList();
       renderActiveChat();
       
-      // تفقد نشاط مدخل النص لتغيير حالة زر الإرسال
       const inputMsg = document.getElementById('input-message');
       inputMsg.addEventListener('input', updateSendButtonState);
     };
 
-    // مفسر الـ Markdown المخصص لمعالجة الردود
     function parseMarkdown(text) {
       if (!text) return "";
 
@@ -285,7 +280,6 @@
       // 10. استرجاع كتل الأكواد وتشكيلها بقالب مذهل
       codeBlocks.forEach((block, idx) => {
         const uniqueId = `code-block-${idx}-${Date.now()}`;
-        const escapedCode = block.code.replace(/`/g, '\\`').replace(/\$/g, '\\$');
         const blockHtml = `
           <div class="my-4 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 font-mono text-sm">
             <div class="bg-slate-900 px-4 py-2 flex justify-between items-center border-b border-slate-850">
@@ -309,7 +303,6 @@
       return html;
     }
 
-    // دالة نسخ الكود البرمجي المحدود
     function copyCodeText(elementId) {
       const codeElement = document.getElementById(elementId);
       if (codeElement) {
@@ -320,7 +313,6 @@
       }
     }
 
-    // فتح وإغلاق القائمة الجانبية في الهواتف
     function toggleSidebar(open) {
       const sidebar = document.getElementById('sidebar');
       if (open) {
@@ -330,7 +322,6 @@
       }
     }
 
-    // فتح وإغلاق شاشة الإعدادات
     function openSettingsModal(show) {
       const modal = document.getElementById('settings-modal');
       if (show) {
@@ -340,14 +331,12 @@
       }
     }
 
-    // حفظ الإعدادات
     function saveSettings() {
       customApiKey = document.getElementById('api-key-input').value.trim();
       systemPrompt = document.getElementById('system-prompt-input').value.trim();
       openSettingsModal(false);
     }
 
-    // إعادة ضبط الإعدادات الافتراضية
     function resetDefaultSettings() {
       document.getElementById('api-key-input').value = USER_PROVIDED_KEY;
       document.getElementById('system-prompt-input').value = DEFAULT_SYSTEM_PROMPT;
@@ -355,7 +344,6 @@
       systemPrompt = DEFAULT_SYSTEM_PROMPT;
     }
 
-    // إنشاء محادثة جديدة
     function createNewChat() {
       const newId = Date.now().toString();
       const newChat = {
@@ -370,7 +358,6 @@
       toggleSidebar(false);
     }
 
-    // حذف محادثة
     function deleteChat(idToDelete, event) {
       event.stopPropagation();
       chats = chats.filter(c => c.id !== idToDelete);
@@ -384,7 +371,6 @@
       renderActiveChat();
     }
 
-    // اختيار محادثة نشطة
     function selectChat(id) {
       activeChatId = id;
       renderChatsList();
@@ -392,7 +378,6 @@
       toggleSidebar(false);
     }
 
-    // تحديث حالة زر الإرسال بناءً على النص والملف
     function updateSendButtonState() {
       const text = document.getElementById('input-message').value.trim();
       const btn = document.getElementById('send-btn');
@@ -407,7 +392,6 @@
       }
     }
 
-    // معالجة الملفات المرفقة
     function processAttachedFile(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -434,7 +418,6 @@
       reader.readAsDataURL(file);
     }
 
-    // عرض معاينة الملف قبل الإرسال
     function showFilePreview() {
       const container = document.getElementById('file-preview-container');
       const visual = document.getElementById('file-preview-visual');
@@ -461,7 +444,6 @@
       }
     }
 
-    // حذف الملف المرفق
     function removeAttachedFile() {
       attachedFile = null;
       document.getElementById('file-input').value = "";
@@ -469,7 +451,6 @@
       updateSendButtonState();
     }
 
-    // رسم قائمة المحادثات
     function renderChatsList() {
       const listContainer = document.getElementById('chats-list');
       listContainer.innerHTML = "";
@@ -499,7 +480,6 @@
       });
     }
 
-    // رسم المحادثة الحالية والرسائل
     function renderActiveChat() {
       const activeChat = chats.find(c => c.id === activeChatId) || chats[0];
       document.getElementById('active-chat-title').textContent = activeChat.title;
@@ -508,7 +488,6 @@
       container.innerHTML = "";
 
       if (activeChat.messages.length === 0) {
-        // رسم شاشة الترحيب
         container.innerHTML = `
           <div class="max-w-3xl mx-auto h-full flex flex-col justify-center items-center py-12 space-y-8">
             <div class="relative">
@@ -521,7 +500,7 @@
             <div class="text-center space-y-3">
               <h2 class="text-3xl font-extrabold text-white tracking-tight">كيف يمكنني مساعدتك اليوم؟</h2>
               <p class="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
-                أنا مساعدك الذكي المدعوم بـ <span class="text-cyan-400 font-semibold">Gemini 2.5 Flash</span>. اسألني عن أي شيء، ارفع ملف PDF، كود برمجياً، أو صوراً وسأتولى تحليلها.
+                أنا مساعدك الذكي المدعوم بـ <span class="text-cyan-400 font-semibold">Gemini 2.5 Flash</span>. اسألني عن أي شيء، ارفع ملف PDF، كود برمجياً، أو صوراً وسأتولى تحليلها مباشرة على GitHub Pages.
               </p>
             </div>
 
@@ -538,11 +517,10 @@
           </div>
         `;
       } else {
-        // رسم الرسائل النشطة
         activeChat.messages.forEach((msg, idx) => {
           const isUser = msg.sender === 'user';
           const msgEl = document.createElement('div');
-          msgEl.className = "flex gap-4 justify-start";
+          msgEl.className = "flex gap-4 justify-start animate-fade-in";
 
           let fileHtml = "";
           if (msg.file) {
@@ -599,13 +577,11 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    // إرسال الاقتراح السريع
     function setSuggestionText(text) {
       document.getElementById('input-message').value = text;
       updateSendButtonState();
     }
 
-    // نسخ نص الرسالة بالكامل
     function copyMessageText(index) {
       const activeChat = chats.find(c => c.id === activeChatId) || chats[0];
       const text = activeChat.messages[index].text;
@@ -614,23 +590,23 @@
       });
     }
 
-    // استدعاء الـ API من Google لـ Gemini
+    // استدعاء الـ API من Google لـ Gemini المتوافق مع البيئات الساكنة (GitHub Pages)
     async function callGeminiAPI(prompt, history, currentFile) {
       const keyToUse = customApiKey || apiKey;
       if (!keyToUse) {
         throw new Error("يرجى إدخال مفتاح الـ API الخاص بـ Gemini في الإعدادات للبدء.");
       }
 
-      let url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent`;
+      // تحسين: استخدام النموذج المستقر الأحدث لتخطي مشاكل الـ CORS
+      let url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
+      
       const headers = {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       };
 
-      if (keyToUse.startsWith('AQ.')) {
-        headers['Authorization'] = `Bearer ${keyToUse}`;
-      } else {
-        url += `?key=${keyToUse}`;
-      }
+      // تحسين جوهري: للعمل على GitHub Pages بدون مشاكل CORS مع مفاتيح AQ.
+      // نقوم بتمرير المفتاح في الـ Query Parameter دائماً كخيار أول، لأن خوادم جوجل تفضل معاملات URL لطلبات الـ Web Client.
+      url += `?key=${keyToUse}`;
 
       // بناء سياق الحوار
       const formattedContents = history.map(msg => {
@@ -670,7 +646,6 @@
         systemInstruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined
       };
 
-      // تطبيق آلية التراجع الأسي (Exponential Backoff) لعدد 5 محاولات
       const maxRetries = 5;
       let delay = 1000;
 
@@ -684,7 +659,29 @@
 
           if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
-            const errMsg = errData?.error?.message || `خطأ في الاتصال! الكود: ${response.status}`;
+            
+            // في حال تم رفض المفتاح كـ Query Parameter لمفتاح AQ.، نقوم بالتحويل الاحتياطي لـ Bearer Token
+            if (response.status === 401 || response.status === 400) {
+               if (keyToUse.startsWith('AQ.')) {
+                  // محاولة بديلة باستخدام الهيدر المخصص
+                  const fallbackHeaders = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${keyToUse}`
+                  };
+                  const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
+                  const fallbackResponse = await fetch(fallbackUrl, {
+                    method: 'POST',
+                    headers: fallbackHeaders,
+                    body: JSON.stringify(payload)
+                  });
+                  if (fallbackResponse.ok) {
+                     const fallbackData = await fallbackResponse.json();
+                     return fallbackData.candidates?.[0]?.content?.parts?.[0]?.text;
+                  }
+               }
+            }
+            
+            const errMsg = errData?.error?.message || `رمز خطأ الاستجابة: ${response.status}`;
             throw new Error(errMsg);
           }
 
@@ -694,9 +691,14 @@
           if (responseText) {
             return responseText;
           } else {
-            throw new Error("تلقينا استجابة غير منسقة من الخادم.");
+            throw new Error("تلقينا استجابة فارغة أو غير متوافقة من الخادم.");
           }
         } catch (error) {
+          // التحقق من أخطاء الـ CORS أو انقطاع الشبكة
+          if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            throw new Error("حدث خطأ CORS (حظر أمان المتصفح). مفاتيح المصادقة التي تبدأ بـ 'AQ.' قد تحتاج إلى تشغيلها من خادم خلفي أو متصفح محلي. نوصي بالحصول على مفتاح Gemini API تقليدي مجاني يبدأ بـ 'AIzaSy' ليعمل على GitHub Pages فوراً وبدون أي قيود.");
+          }
+          
           if (i === maxRetries - 1) {
             throw error;
           }
@@ -706,7 +708,6 @@
       }
     }
 
-    // إرسال الرسالة وبدء التفكير
     async function handleSendMessage(event) {
       if (event) event.preventDefault();
 
@@ -718,7 +719,6 @@
       const userMessageText = text || (attachedFile ? `مرفق ملف للتحليل: ${attachedFile.name}` : "");
       const currentFile = attachedFile;
 
-      // تفريغ المدخلات فوراً
       inputElement.value = "";
       removeAttachedFile();
 
@@ -733,7 +733,6 @@
       const activeChat = chats.find(c => c.id === activeChatId) || chats[0];
       activeChat.messages.push(userMessage);
 
-      // تحديث العنوان تلقائياً بناءً على الرسالة الأولى
       if (activeChat.messages.length === 1) {
         const titleText = currentFile ? `تحليل ملف: ${currentFile.name}` : userMessageText;
         activeChat.title = titleText.slice(0, 24) + '...';
@@ -759,7 +758,7 @@
         const errorMessage = {
           id: (Date.now() + 1).toString(),
           sender: 'bot',
-          text: `**فشل الاتصال بخوادم جيميناي!** \n\n السبب: ${error.message}`,
+          text: `### ⚠️ فشل في الاتصال بـ Gemini!\n\n**السبب المكتشف:** ${error.message}\n\n**كيفية الحل المقترحة:**\n1. يفضل استبدال المفتاح بمفتاح واجهة تطبيقات تقليدي يبدأ بالحروف \`AIzaSy\` من منصة Google AI Studio.\n2. أو جرب تحديث الصفحة والمحاولة مجدداً.`,
           timestamp: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
         };
         activeChat.messages.push(errorMessage);
@@ -769,7 +768,6 @@
       }
     }
 
-    // إظهار وإخفاء محاكاة التفكير والتحميل
     function showThinkingState(show) {
       const container = document.getElementById('chat-messages-container');
       const id = 'thinking-loading-indicator';
@@ -785,7 +783,7 @@
             <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 19.19M20 20h-5v-5"/></svg>
           </div>
           <div class="space-y-2 flex-1">
-            <span class="text-xs font-semibold text-slate-400">جاري التفكير وتحليل الملفات...</span>
+            <span class="text-xs font-semibold text-slate-400">جاري معالجة طلبك عبر Gemini...</span>
             <div class="bg-slate-950 border border-slate-850 p-4 rounded-2xl rounded-tl-none w-24 flex justify-center items-center gap-1.5">
               <div class="w-2 h-2 rounded-full bg-cyan-400 animate-bounce"></div>
               <div class="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style="animation-delay: 150ms"></div>
